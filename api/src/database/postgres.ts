@@ -1,8 +1,9 @@
-import { Pool } from 'pg';
+import { Pool, PoolClient } from 'pg';
 
 export class DatabaseConnection {
 
-    pool: Pool;
+    private pool: Pool;
+    client: PoolClient;
 
     constructor(pool?: Pool) {
         if (pool === undefined) {
@@ -19,23 +20,22 @@ export class DatabaseConnection {
     }
 
     async connect(): Promise<void> {
-        try {
-            await this.pool.connect(); 
-            console.log('Connected to the PostgreSQL database');
-        } catch (error) {
-            console.error('Database connection failed', error);
-            process.exit(1);
-        }
+        this.client = await this.pool.connect(); 
+        console.log('Connected to the PostgreSQL database');
     }
 
     async close(): Promise<void> {
         try {
             await this.pool.end();
+            console.log("Closing Connection to database")
         }
         catch(error) {
+            console.debug(`Total clients: ${this.pool.totalCount}`);
+            console.debug(`Idle clients: ${this.pool.idleCount}`);
+            console.debug(`Active clients: ${this.pool.totalCount - this.pool.idleCount}`);
+
             console.error("Failed to end connection to database", error)
         }
     }
 }
-// Function to connect to the database and log the connection status
 

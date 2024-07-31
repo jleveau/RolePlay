@@ -1,47 +1,60 @@
 import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers';
 import { Pool } from 'pg';
+import { DatabaseConnection } from './postgres';
 
-let container: StartedTestContainer;
-let pool: Pool;
 
-export const startDatabaseContainer = async () => {
-    container = await new GenericContainer("postgres")
-        .withEnvironment({
-            "POSTGRES_DB": "testdb",
-            "POSTGRES_USER": "user",
-            "POSTGRES_PASSWORD": "password"
-        })
-        .withExposedPorts(5432)
-        .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
-        .start();
+const TEST_DATABASE = "testdb";
+const TEST_DATABASE_USER = "user";
+const TEST_DATABASE_PASSWORD = "password"
+const MAX_RETRY_CONNECTION_ATTEMPT = 10;
+export class DatabaseContainer {
 
-    const mappedPort = container.getMappedPort(5432);
-    const host = container.getHost();
+    private container: StartedTestContainer;
+    connection: DatabaseConnection;
 
-    pool = new Pool({
-        user: 'user',
-        host: host,
-        database: 'testdb',
-        password: 'password',
-        port: mappedPort,
-    });
-    for (let i = 0; i < 10; i++) {
-        try {
-            await pool.connect();
-            console.log('Successfully connected to the database.');
-            return;  // Exit if connection is successful
-        } catch (error) {
-            console.error('Failed to connect to database, retrying...', error);
-            await new Promise(res => setTimeout(res, 5000));  // Wait 5 seconds before retrying
+    async start () {
+        this.container = await new GenericContainer("postgres")
+            .withEnvironment({
+                "POSTGRES_DB": TEST_DATABASE,
+                "POSTGRES_USER": TEST_DATABASE_USER,
+                "POSTGRES_PASSWORD": TEST_DATABASE_PASSWORD
+            })
+            .withExposedPorts(5432)
+            .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
+            .withLogConsumer((stream) => {
+                stream.on("error", (error) => {
+                    console.error(error);
+                })
+            })
+            .start();
+
+        const mappedPort = this.container.getMappedPort(5432);
+        const host = this.container.getHost();
+
+        const pool = new Pool({
+            user: TEST_DATABASE_USER,
+            host: host,
+            database: TEST_DATABASE,
+            password: TEST_DATABASE_PASSWORD,
+            port: mappedPort,
+        });
+        this.connection = new DatabaseConnection(pool);
+
+        for (let i = 0; i < MAX_RETRY_CONNECTION_ATTEMPT; i++) {
+            try {
+                await this.connection.connect();
+                console.info('Successfully connected to the container database.');
+                return;
+            } catch (error) {
+                await new Promise(res => setTimeout(res, 5000));
+            }
         }
+        throw new Error('Failed to connect to the database after multiple attempts.');
+    };
+
+    async stop() {
+        await this.connection.close();
+        await this.container.stop();
     }
-    throw new Error('Failed to connect to the database after multiple attempts.');
 
-};
-
-export const stopDatabaseContainer = async () => {
-    await pool.end();
-    await container.stop();
-};
-
-export const getPool = () => pool;
+}

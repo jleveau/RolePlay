@@ -28,6 +28,8 @@ const start = async () => {
     });
 
     const databaseConnection = new DatabaseConnection();
+    await databaseConnection.connect()
+    
     const placesController = new PlacesController(databaseConnection);
     placesController.init();
 }
