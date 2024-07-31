@@ -13,10 +13,8 @@ services:
       - ./.env
 
     restart: on-failure
-    command: 
-      npm run dev
 
-  db:
+  database:
     image: postgres:12
     ports:
       - "5432:5432"

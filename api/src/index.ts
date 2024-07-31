@@ -7,6 +7,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import attachSwagger from './swagger/swaggerRouter';
 
 dotenv.config();
 
@@ -20,7 +21,8 @@ const start = async () => {
     app.use(cors()); // to enable CORS with various options
     app.use(helmet()); // helps secure your apps by setting various HTTP headers
     app.use(morgan('dev')); // HTTP request logger middleware for node.js
-
+    
+    attachSwagger(app);
     attachPlacesRoutes(app);
 
     app.listen(process.env.PORT, () => {
@@ -29,7 +31,7 @@ const start = async () => {
 
     const databaseConnection = new DatabaseConnection();
     await databaseConnection.connect()
-    
+
     const placesController = new PlacesController(databaseConnection);
     placesController.init();
 }

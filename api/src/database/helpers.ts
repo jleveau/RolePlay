@@ -7,6 +7,8 @@ const TEST_DATABASE = "testdb";
 const TEST_DATABASE_USER = "user";
 const TEST_DATABASE_PASSWORD = "password"
 const MAX_RETRY_CONNECTION_ATTEMPT = 10;
+const TEST_PORT = 5433;
+
 export class DatabaseContainer {
 
     private container: StartedTestContainer;
@@ -19,7 +21,7 @@ export class DatabaseContainer {
                 "POSTGRES_USER": TEST_DATABASE_USER,
                 "POSTGRES_PASSWORD": TEST_DATABASE_PASSWORD
             })
-            .withExposedPorts(5432)
+            .withExposedPorts(TEST_PORT)
             .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
             .withLogConsumer((stream) => {
                 stream.on("error", (error) => {
@@ -28,7 +30,7 @@ export class DatabaseContainer {
             })
             .start();
 
-        const mappedPort = this.container.getMappedPort(5432);
+        const mappedPort = this.container.getMappedPort(TEST_PORT);
         const host = this.container.getHost();
 
         const pool = new Pool({
