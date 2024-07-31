@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import attachSwagger from './swagger/swaggerRouter';
+import attachRouter from './index.router';
 
 dotenv.config();
 
@@ -21,16 +22,10 @@ const start = async () => {
     app.use(cors()); // to enable CORS with various options
     app.use(helmet()); // helps secure your apps by setting various HTTP headers
     app.use(morgan('dev')); // HTTP request logger middleware for node.js
-    
-    
-    app.get("/health", (req, res) => {
-        res.json({
-            status: "ok"
-        })
-    })
-    attachSwagger(app);
-    attachPlacesRoutes(app);
 
+    attachSwagger(app);
+    attachRouter(app);
+    attachPlacesRoutes(app);
 
     app.listen(process.env.PORT, () => {
         console.log(`Server is running at http://localhost:${process.env.PORT}`);
