@@ -22,8 +22,15 @@ const start = async () => {
     app.use(helmet()); // helps secure your apps by setting various HTTP headers
     app.use(morgan('dev')); // HTTP request logger middleware for node.js
     
+    
+    app.get("/health", (req, res) => {
+        res.json({
+            status: "ok"
+        })
+    })
     attachSwagger(app);
     attachPlacesRoutes(app);
+
 
     app.listen(process.env.PORT, () => {
         console.log(`Server is running at http://localhost:${process.env.PORT}`);

@@ -1,4 +1,3 @@
-# Use the official Node.js 16 image as a parent image
 FROM node:22-alpine
 
 # Set the working directory inside the Docker container

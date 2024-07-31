@@ -4,3 +4,12 @@ services:
   api:
     command: 
       npm run dev
+    volumes:
+      - ./api:/usr/src/app
+
+  front:
+    command: 
+      npm run dev
+    volumes:
+      - ./front:/usr/src/app
+    

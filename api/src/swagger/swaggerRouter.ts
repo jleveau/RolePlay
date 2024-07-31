@@ -7,7 +7,8 @@ import swaggerSpec from './swaggerSetup';
 
 
 const attachSwagger = (app: Express.Application) => {
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    console.log("Attaching Swagger");
+    app.use('/swagger/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 }
 
 export default attachSwagger;

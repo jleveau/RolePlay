@@ -7,9 +7,10 @@ const swaggerDefinition: swaggerJSDoc.SwaggerDefinition = {
       version: '1.0.0',
       description: 'This a brilliant application to design and play roleplay sessions',
     },
+    
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: 'http://localhost/api/',
         description: 'Local server',
       },
     ],

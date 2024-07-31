@@ -11,9 +11,9 @@ usage() {
     echo -e "${YELLOW}Usage: $0 [option]${NC}"
     echo "Options:"
     echo "  start   : Start the project"
+    echo "  build   : Build the images"
     echo "  stop    : Stop the project"
     echo "  restart : Restart the project"
-    echo "  logs    : View logs"
     echo "  help    : Display this help message"
 }
 
@@ -28,6 +28,11 @@ case $1 in
     start)
         echo -e "${GREEN}🚀 Starting the project...${NC}"
         docker-compose -f docker-compose.yml -f docker-compose-dev.yml up -d
+        docker-compose -f docker-compose.yml -f docker-compose-dev.yml logs -f
+        ;;
+    build)
+        echo -e "${YELLOW}🚀 Building the project...${NC}"
+        docker-compose -f docker-compose.yml -f docker-compose-dev.yml build 
         ;;
     stop)
         echo -e "${RED}🛑 Stopping the project...${NC}"
@@ -37,11 +42,9 @@ case $1 in
         echo -e "${YELLOW}🔄 Restarting the project...${NC}"
         docker-compose -f docker-compose.yml -f docker-compose-dev.yml down
         docker-compose -f docker-compose.yml -f docker-compose-dev.yml up -d
-        ;;
-    logs)
-        echo -e "${YELLOW}📜 Viewing logs...${NC}"
         docker-compose -f docker-compose.yml -f docker-compose-dev.yml logs -f        
         ;;
+    
     help)
         usage
         ;;
